@@ -764,7 +764,7 @@ public class Main extends JFrame {
 
     private JPanel createReportPanel() {
         // Use enhanced report generator with better formatting and export options
-        return ReportGenerator.createReportPanel(currentRole, currentUserId);
+        return com.company.ui.ReportGenerator.createReportPanel(currentRole, currentUserId);
     }
 
     // --------------- Student Logic ---------------
