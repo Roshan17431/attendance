@@ -10,19 +10,23 @@ public class Student {
     private String studentRoll;
     private String email;
     private String phone;
+    private String studentClass;
+    private String division;
     private Integer userId;
     
     public Student() {
     }
     
     public Student(int studentId, String firstName, String lastName, String studentRoll, 
-                   String email, String phone, Integer userId) {
+                   String email, String phone, String studentClass, String division, Integer userId) {
         this.studentId = studentId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.studentRoll = studentRoll;
         this.email = email;
         this.phone = phone;
+        this.studentClass = studentClass;
+        this.division = division;
         this.userId = userId;
     }
     
@@ -81,6 +85,22 @@ public class Student {
     
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+    
+    public String getStudentClass() {
+        return studentClass;
+    }
+    
+    public void setStudentClass(String studentClass) {
+        this.studentClass = studentClass;
+    }
+    
+    public String getDivision() {
+        return division;
+    }
+    
+    public void setDivision(String division) {
+        this.division = division;
     }
     
     public String getFullName() {

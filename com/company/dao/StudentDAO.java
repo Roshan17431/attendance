@@ -80,7 +80,7 @@ public class StudentDAO {
     }
     
     public void addStudent(Student student) throws SQLException {
-        String sql = "INSERT INTO students(first_name, last_name, student_roll, email, phone) VALUES(?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO students(first_name, last_name, student_roll, email, phone, class, division) VALUES(?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -90,12 +90,14 @@ public class StudentDAO {
             stmt.setString(3, student.getStudentRoll());
             stmt.setString(4, student.getEmail());
             stmt.setString(5, student.getPhone());
+            stmt.setString(6, student.getStudentClass());
+            stmt.setString(7, student.getDivision());
             stmt.executeUpdate();
         }
     }
     
     public void updateStudent(Student student) throws SQLException {
-        String sql = "UPDATE students SET first_name=?, last_name=?, student_roll=?, email=?, phone=? WHERE student_id=?";
+        String sql = "UPDATE students SET first_name=?, last_name=?, student_roll=?, email=?, phone=?, class=?, division=? WHERE student_id=?";
         
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -105,7 +107,9 @@ public class StudentDAO {
             stmt.setString(3, student.getStudentRoll());
             stmt.setString(4, student.getEmail());
             stmt.setString(5, student.getPhone());
-            stmt.setInt(6, student.getStudentId());
+            stmt.setString(6, student.getStudentClass());
+            stmt.setString(7, student.getDivision());
+            stmt.setInt(8, student.getStudentId());
             stmt.executeUpdate();
         }
     }
@@ -151,6 +155,38 @@ public class StudentDAO {
         return 0;
     }
     
+    public List<Student> getStudentsByClassAndDivision(String studentClass, String division) throws SQLException {
+        List<Student> students = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM students WHERE 1=1");
+        
+        if (studentClass != null && !studentClass.isEmpty() && !studentClass.equals("All")) {
+            sql.append(" AND class = ?");
+        }
+        if (division != null && !division.isEmpty() && !division.equals("All")) {
+            sql.append(" AND division = ?");
+        }
+        sql.append(" ORDER BY class, division, student_id");
+        
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            if (studentClass != null && !studentClass.isEmpty() && !studentClass.equals("All")) {
+                stmt.setString(paramIndex++, studentClass);
+            }
+            if (division != null && !division.isEmpty() && !division.equals("All")) {
+                stmt.setString(paramIndex++, division);
+            }
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    students.add(mapResultSetToStudent(rs));
+                }
+            }
+        }
+        return students;
+    }
+    
     private Student mapResultSetToStudent(ResultSet rs) throws SQLException {
         Student student = new Student();
         student.setStudentId(rs.getInt("student_id"));
@@ -159,6 +195,8 @@ public class StudentDAO {
         student.setStudentRoll(rs.getString("student_roll"));
         student.setEmail(rs.getString("email"));
         student.setPhone(rs.getString("phone"));
+        student.setStudentClass(rs.getString("class"));
+        student.setDivision(rs.getString("division"));
         
         int userId = rs.getInt("user_id");
         student.setUserId(rs.wasNull() ? null : userId);

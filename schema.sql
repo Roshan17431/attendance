@@ -27,6 +27,8 @@ CREATE TABLE students (
                           email VARCHAR(100),
                           phone VARCHAR(20),
                           photo_path VARCHAR(255),
+                          class VARCHAR(10) CHECK (class IN ('S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8')),
+                          division VARCHAR(1) CHECK (division IN ('A', 'B', 'C', 'D', 'E')),
                           user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -119,24 +121,24 @@ INSERT INTO teachers (first_name, last_name, email, user_id) VALUES
                                                                  ('David', 'Wilson', 'david.wilson@school.edu', 6);
 
 -- Insert sample students
-INSERT INTO students (first_name, last_name, student_roll, email, user_id) VALUES
-                                                                               ('Alice', 'Smith', 'STU001', 'alice.smith@student.edu', 7),
-                                                                               ('Bob', 'Johnson', 'STU002', 'bob.johnson@student.edu', NULL),
-                                                                               ('Charlie', 'Brown', 'STU003', 'charlie.brown@student.edu', NULL),
-                                                                               ('Diana', 'Wilson', 'STU004', 'diana.wilson@student.edu', NULL),
-                                                                               ('Eve', 'Davis', 'STU005', 'eve.davis@student.edu', NULL),
-                                                                               ('Frank', 'Taylor', 'STU006', 'frank.taylor@student.edu', NULL),
-                                                                               ('Grace', 'Lee', 'STU007', 'grace.lee@student.edu', NULL),
-                                                                               ('Henry', 'Martinez', 'STU008', 'henry.martinez@student.edu', NULL),
-                                                                               ('Isabella', 'Garcia', 'STU009', 'isabella.garcia@student.edu', NULL),
-                                                                               ('James', 'Lopez', 'STU010', 'james.lopez@student.edu', NULL),
-                                                                               ('Kelly', 'Hernandez', 'STU011', 'kelly.hernandez@student.edu', NULL),
-                                                                               ('Liam', 'Moore', 'STU012', 'liam.moore@student.edu', NULL),
-                                                                               ('Mia', 'Clark', 'STU013', 'mia.clark@student.edu', NULL),
-                                                                               ('Noah', 'Lewis', 'STU014', 'noah.lewis@student.edu', NULL),
-                                                                               ('Olivia', 'Walker', 'STU015', 'olivia.walker@student.edu', NULL),
-                                                                               ('Peter', 'Hall', 'STU016', 'peter.hall@student.edu', NULL),
-                                                                               ('Quinn', 'Allen', 'STU017', 'quinn.allen@student.edu', NULL),
-                                                                               ('Rachel', 'Young', 'STU018', 'rachel.young@student.edu', NULL),
-                                                                               ('Samuel', 'King', 'STU019', 'samuel.king@student.edu', NULL),
-                                                                               ('Tara', 'Scott', 'STU020', 'tara.scott@student.edu', NULL);
+INSERT INTO students (first_name, last_name, student_roll, email, class, division, user_id) VALUES
+                                                                               ('Alice', 'Smith', 'STU001', 'alice.smith@student.edu', 'S1', 'A', 7),
+                                                                               ('Bob', 'Johnson', 'STU002', 'bob.johnson@student.edu', 'S1', 'A', NULL),
+                                                                               ('Charlie', 'Brown', 'STU003', 'charlie.brown@student.edu', 'S1', 'B', NULL),
+                                                                               ('Diana', 'Wilson', 'STU004', 'diana.wilson@student.edu', 'S1', 'B', NULL),
+                                                                               ('Eve', 'Davis', 'STU005', 'eve.davis@student.edu', 'S2', 'A', NULL),
+                                                                               ('Frank', 'Taylor', 'STU006', 'frank.taylor@student.edu', 'S2', 'A', NULL),
+                                                                               ('Grace', 'Lee', 'STU007', 'grace.lee@student.edu', 'S2', 'B', NULL),
+                                                                               ('Henry', 'Martinez', 'STU008', 'henry.martinez@student.edu', 'S2', 'B', NULL),
+                                                                               ('Isabella', 'Garcia', 'STU009', 'isabella.garcia@student.edu', 'S3', 'A', NULL),
+                                                                               ('James', 'Lopez', 'STU010', 'james.lopez@student.edu', 'S3', 'A', NULL),
+                                                                               ('Kelly', 'Hernandez', 'STU011', 'kelly.hernandez@student.edu', 'S3', 'B', NULL),
+                                                                               ('Liam', 'Moore', 'STU012', 'liam.moore@student.edu', 'S3', 'B', NULL),
+                                                                               ('Mia', 'Clark', 'STU013', 'mia.clark@student.edu', 'S4', 'A', NULL),
+                                                                               ('Noah', 'Lewis', 'STU014', 'noah.lewis@student.edu', 'S4', 'A', NULL),
+                                                                               ('Olivia', 'Walker', 'STU015', 'olivia.walker@student.edu', 'S4', 'B', NULL),
+                                                                               ('Peter', 'Hall', 'STU016', 'peter.hall@student.edu', 'S4', 'B', NULL),
+                                                                               ('Quinn', 'Allen', 'STU017', 'quinn.allen@student.edu', 'S5', 'A', NULL),
+                                                                               ('Rachel', 'Young', 'STU018', 'rachel.young@student.edu', 'S5', 'A', NULL),
+                                                                               ('Samuel', 'King', 'STU019', 'samuel.king@student.edu', 'S5', 'B', NULL),
+                                                                               ('Tara', 'Scott', 'STU020', 'tara.scott@student.edu', 'S5', 'B', NULL);
