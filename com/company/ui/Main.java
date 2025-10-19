@@ -31,12 +31,14 @@ public class Main extends JFrame {
 
     // Student Management Components
     private JTextField firstNameField, lastNameField, rollField, studentSearchField, studentEmailField, studentPhoneField;
+    private JComboBox<String> studentClassComboBox, studentDivisionComboBox;
     private JButton addStudentBtn, updateStudentBtn, deleteStudentBtn, searchStudentBtn, refreshStudentBtn;
     private JTable studentTable;
     private DefaultTableModel studentTableModel;
 
     // Attendance Management Components
     private JComboBox<String> subjectComboBox;
+    private JComboBox<String> attendanceClassComboBox, attendanceDivisionComboBox;
     private JSpinner dateSpinner;
     private JTable attendanceTable;
     private JButton markAttendanceBtn;
@@ -311,6 +313,14 @@ public class Main extends JFrame {
                         if (studentTableModel.getColumnCount() > 5 && studentTableModel.getValueAt(r, 5) != null) {
                             studentPhoneField.setText(studentTableModel.getValueAt(r, 5).toString());
                         }
+                        if (studentTableModel.getColumnCount() > 6 && studentTableModel.getValueAt(r, 6) != null) {
+                            String classValue = studentTableModel.getValueAt(r, 6).toString();
+                            studentClassComboBox.setSelectedItem(classValue);
+                        }
+                        if (studentTableModel.getColumnCount() > 7 && studentTableModel.getValueAt(r, 7) != null) {
+                            String divValue = studentTableModel.getValueAt(r, 7).toString();
+                            studentDivisionComboBox.setSelectedItem(divValue);
+                        }
                     }
                 }
             });
@@ -408,6 +418,8 @@ public class Main extends JFrame {
         rollField = createStyledTextField(15);
         studentEmailField = createStyledTextField(15);
         studentPhoneField = createStyledTextField(15);
+        studentClassComboBox = createStyledComboBox(new String[]{"", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"});
+        studentDivisionComboBox = createStyledComboBox(new String[]{"", "A", "B", "C", "D", "E"});
 
         addStudentBtn = createSuccessButton("➕ Add");
         updateStudentBtn = createPrimaryButton("✏️ Update");
@@ -440,6 +452,16 @@ public class Main extends JFrame {
         formCard.add(studentPhoneField, gbc);
         
         gbc.gridx = 2; gbc.gridy = 2;
+        formCard.add(createStyledLabel("Class:", NORMAL_FONT), gbc);
+        gbc.gridx = 3;
+        formCard.add(studentClassComboBox, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = 3;
+        formCard.add(createStyledLabel("Division:", NORMAL_FONT), gbc);
+        gbc.gridx = 1;
+        formCard.add(studentDivisionComboBox, gbc);
+        
+        gbc.gridx = 2; gbc.gridy = 3;
         formCard.add(addStudentBtn, gbc);
         gbc.gridx = 3;
         formCard.add(updateStudentBtn, gbc);
@@ -460,7 +482,7 @@ public class Main extends JFrame {
         searchCard.add(deleteStudentBtn);
 
         studentTableModel = new DefaultTableModel(
-            new String[]{"ID", "First Name", "Last Name", "Roll No.", "Email", "Phone"}, 0) {
+            new String[]{"ID", "First Name", "Last Name", "Roll No.", "Email", "Phone", "Class", "Division"}, 0) {
             public boolean isCellEditable(int r, int c) {
                 return false;
             }
@@ -473,6 +495,8 @@ public class Main extends JFrame {
         studentTable.getColumnModel().getColumn(3).setPreferredWidth(100);
         studentTable.getColumnModel().getColumn(4).setPreferredWidth(180);
         studentTable.getColumnModel().getColumn(5).setPreferredWidth(120);
+        studentTable.getColumnModel().getColumn(6).setPreferredWidth(60);
+        studentTable.getColumnModel().getColumn(7).setPreferredWidth(60);
 
         addStudentBtn.addActionListener(e -> addStudent());
         updateStudentBtn.addActionListener(e -> updateStudent());
@@ -720,21 +744,32 @@ public class Main extends JFrame {
         topCard.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 10));
 
         subjectComboBox = createStyledComboBox(new String[]{});
+        attendanceClassComboBox = createStyledComboBox(new String[]{"All", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"});
+        attendanceDivisionComboBox = createStyledComboBox(new String[]{"All", "A", "B", "C", "D", "E"});
         dateSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
         dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
         dateSpinner.setFont(NORMAL_FONT);
         markAttendanceBtn = createSuccessButton("💾 Save Attendance");
+        
+        JButton loadClassBtn = createPrimaryButton("🔄 Load Students");
 
         topCard.add(createStyledLabel("Subject:", NORMAL_FONT));
         topCard.add(subjectComboBox);
+        topCard.add(createStyledLabel("Class:", NORMAL_FONT));
+        topCard.add(attendanceClassComboBox);
+        topCard.add(createStyledLabel("Division:", NORMAL_FONT));
+        topCard.add(attendanceDivisionComboBox);
         topCard.add(createStyledLabel("Date:", NORMAL_FONT));
         topCard.add(dateSpinner);
+        topCard.add(loadClassBtn);
         topCard.add(markAttendanceBtn);
+        
+        loadClassBtn.addActionListener(e -> populateAttendanceTable());
 
         attendanceTable = new JTable(new DefaultTableModel(
-            new String[]{"Student ID", "First Name", "Last Name", "Roll No.", "Status"}, 0) {
+            new String[]{"Student ID", "First Name", "Last Name", "Roll No.", "Class", "Division", "Status"}, 0) {
             public boolean isCellEditable(int r, int c) {
-                return ("Teacher".equals(currentRole) || "Admin".equals(currentRole)) && c == 4;
+                return ("Teacher".equals(currentRole) || "Admin".equals(currentRole)) && c == 6;
             }
         });
         styleTable(attendanceTable);
@@ -742,12 +777,14 @@ public class Main extends JFrame {
         attendanceTable.getColumnModel().getColumn(1).setPreferredWidth(150);
         attendanceTable.getColumnModel().getColumn(2).setPreferredWidth(150);
         attendanceTable.getColumnModel().getColumn(3).setPreferredWidth(100);
-        attendanceTable.getColumnModel().getColumn(4).setPreferredWidth(120);
+        attendanceTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+        attendanceTable.getColumnModel().getColumn(5).setPreferredWidth(60);
+        attendanceTable.getColumnModel().getColumn(6).setPreferredWidth(120);
 
         if ("Teacher".equals(currentRole) || "Admin".equals(currentRole)) {
             JComboBox<String> statusCombo = createStyledComboBox(
                 new String[]{"Present", "Absent", "Late", "Excused"});
-            attendanceTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(statusCombo));
+            attendanceTable.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(statusCombo));
         }
 
         markAttendanceBtn.addActionListener(e -> markAttendance());
@@ -781,7 +818,9 @@ public class Main extends JFrame {
                         rs.getString("last_name"),
                         rs.getString("student_roll"),
                         rs.getString("email"),
-                        rs.getString("phone")
+                        rs.getString("phone"),
+                        rs.getString("class"),
+                        rs.getString("division")
                 });
             }
         } catch (SQLException ex) {
@@ -795,6 +834,8 @@ public class Main extends JFrame {
         String r = rollField.getText().trim();
         String email = studentEmailField.getText().trim();
         String phone = studentPhoneField.getText().trim();
+        String studentClass = (String) studentClassComboBox.getSelectedItem();
+        String division = (String) studentDivisionComboBox.getSelectedItem();
         
         if (f.isEmpty() || l.isEmpty() || r.isEmpty()) {
             JOptionPane.showMessageDialog(this, "First Name, Last Name, and Roll No are required.",
@@ -809,7 +850,7 @@ public class Main extends JFrame {
             return;
         }
         
-        String sql = "INSERT INTO students(first_name, last_name, student_roll, email, phone) VALUES(?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO students(first_name, last_name, student_roll, email, phone, class, division) VALUES(?, ?, ?, ?, ?, ?, ?)";
         try (Connection c = DatabaseManager.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, f);
@@ -817,6 +858,8 @@ public class Main extends JFrame {
             ps.setString(3, r);
             ps.setString(4, email.isEmpty() ? null : email);
             ps.setString(5, phone.isEmpty() ? null : phone);
+            ps.setString(6, studentClass != null && !studentClass.isEmpty() ? studentClass : null);
+            ps.setString(7, division != null && !division.isEmpty() ? division : null);
             ps.executeUpdate();
             JOptionPane.showMessageDialog(this, "Student added successfully.",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -825,6 +868,8 @@ public class Main extends JFrame {
             rollField.setText("");
             studentEmailField.setText("");
             studentPhoneField.setText("");
+            studentClassComboBox.setSelectedIndex(0);
+            studentDivisionComboBox.setSelectedIndex(0);
             loadStudents();
             populateAttendanceTable();
         } catch (SQLException ex) {
@@ -850,6 +895,8 @@ public class Main extends JFrame {
         String r = rollField.getText().trim();
         String email = studentEmailField.getText().trim();
         String phone = studentPhoneField.getText().trim();
+        String studentClass = (String) studentClassComboBox.getSelectedItem();
+        String division = (String) studentDivisionComboBox.getSelectedItem();
         
         if (f.isEmpty() || l.isEmpty() || r.isEmpty()) {
             JOptionPane.showMessageDialog(this, "First Name, Last Name, and Roll No are required.",
@@ -864,7 +911,7 @@ public class Main extends JFrame {
             return;
         }
         
-        String sql = "UPDATE students SET first_name=?, last_name=?, student_roll=?, email=?, phone=? WHERE student_id=?";
+        String sql = "UPDATE students SET first_name=?, last_name=?, student_roll=?, email=?, phone=?, class=?, division=? WHERE student_id=?";
         try (Connection c = DatabaseManager.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, f);
@@ -872,7 +919,9 @@ public class Main extends JFrame {
             ps.setString(3, r);
             ps.setString(4, email.isEmpty() ? null : email);
             ps.setString(5, phone.isEmpty() ? null : phone);
-            ps.setInt(6, id);
+            ps.setString(6, studentClass != null && !studentClass.isEmpty() ? studentClass : null);
+            ps.setString(7, division != null && !division.isEmpty() ? division : null);
+            ps.setInt(8, id);
             if (ps.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(this, "Student updated successfully.",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -933,7 +982,9 @@ public class Main extends JFrame {
                             rs.getString("last_name"),
                             rs.getString("student_roll"),
                             rs.getString("email"),
-                            rs.getString("phone")
+                            rs.getString("phone"),
+                            rs.getString("class"),
+                            rs.getString("division")
                     });
                 }
             }
@@ -1249,9 +1300,9 @@ public class Main extends JFrame {
     // --------------- Attendance ---------------
     private void populateAttendanceTable() {
         DefaultTableModel m = new DefaultTableModel(
-            new String[]{"Student ID", "First Name", "Last Name", "Roll No.", "Status"}, 0) {
+            new String[]{"Student ID", "First Name", "Last Name", "Roll No.", "Class", "Division", "Status"}, 0) {
             public boolean isCellEditable(int r, int c) {
-                return ("Teacher".equals(currentRole) || "Admin".equals(currentRole)) && c == 4;
+                return ("Teacher".equals(currentRole) || "Admin".equals(currentRole)) && c == 6;
             }
         };
         attendanceTable.setModel(m);
@@ -1260,21 +1311,47 @@ public class Main extends JFrame {
         if ("Teacher".equals(currentRole) || "Admin".equals(currentRole)) {
             JComboBox<String> statusCombo = createStyledComboBox(
                 new String[]{"Present", "Absent", "Late", "Excused"});
-            attendanceTable.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(statusCombo));
+            attendanceTable.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(statusCombo));
         }
 
-        String sql = "SELECT student_id, first_name, last_name, student_roll FROM students ORDER BY student_id";
+        // Get selected class and division
+        String selectedClass = (String) attendanceClassComboBox.getSelectedItem();
+        String selectedDivision = (String) attendanceDivisionComboBox.getSelectedItem();
+        
+        // Build SQL query based on filters
+        StringBuilder sql = new StringBuilder("SELECT student_id, first_name, last_name, student_roll, class, division FROM students WHERE 1=1");
+        
+        if (selectedClass != null && !selectedClass.equals("All")) {
+            sql.append(" AND class = ?");
+        }
+        if (selectedDivision != null && !selectedDivision.equals("All")) {
+            sql.append(" AND division = ?");
+        }
+        sql.append(" ORDER BY class, division, student_id");
+        
         try (Connection c = DatabaseManager.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                m.addRow(new Object[]{
-                        rs.getInt("student_id"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getString("student_roll"),
-                        "Present"
-                });
+             PreparedStatement ps = c.prepareStatement(sql.toString())) {
+            
+            int paramIndex = 1;
+            if (selectedClass != null && !selectedClass.equals("All")) {
+                ps.setString(paramIndex++, selectedClass);
+            }
+            if (selectedDivision != null && !selectedDivision.equals("All")) {
+                ps.setString(paramIndex++, selectedDivision);
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    m.addRow(new Object[]{
+                            rs.getInt("student_id"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("student_roll"),
+                            rs.getString("class"),
+                            rs.getString("division"),
+                            "Present"
+                    });
+                }
             }
         } catch (SQLException ex) {
             showError("Loading students for attendance", ex);
@@ -1343,7 +1420,7 @@ public class Main extends JFrame {
                 DefaultTableModel m = (DefaultTableModel) attendanceTable.getModel();
                 for (int i = 0; i < m.getRowCount(); i++) {
                     int studentId = (int) m.getValueAt(i, 0);
-                    String status = (String) m.getValueAt(i, 4);
+                    String status = (String) m.getValueAt(i, 6);
                     ps.setInt(1, studentId);
                     ps.setInt(2, sessionId);
                     ps.setString(3, status);
