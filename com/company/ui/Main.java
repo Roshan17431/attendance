@@ -39,6 +39,7 @@ public class Main extends JFrame {
     // Attendance Management Components
     private JComboBox<String> subjectComboBox;
     private JComboBox<String> attendanceClassComboBox, attendanceDivisionComboBox;
+    private JComboBox<String> sessionNumberComboBox;
     private JSpinner dateSpinner;
     private JTable attendanceTable;
     private JButton markAttendanceBtn;
@@ -746,6 +747,7 @@ public class Main extends JFrame {
         subjectComboBox = createStyledComboBox(new String[]{});
         attendanceClassComboBox = createStyledComboBox(new String[]{"All", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"});
         attendanceDivisionComboBox = createStyledComboBox(new String[]{"All", "A", "B", "C", "D", "E"});
+        sessionNumberComboBox = createStyledComboBox(new String[]{"Session 1", "Session 2", "Session 3", "Session 4", "Session 5", "Session 6", "Session 7", "Session 8", "Session 9", "Session 10"});
         dateSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
         dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd"));
         dateSpinner.setFont(NORMAL_FONT);
@@ -755,6 +757,8 @@ public class Main extends JFrame {
 
         topCard.add(createStyledLabel("Subject:", NORMAL_FONT));
         topCard.add(subjectComboBox);
+        topCard.add(createStyledLabel("Session:", NORMAL_FONT));
+        topCard.add(sessionNumberComboBox);
         topCard.add(createStyledLabel("Class:", NORMAL_FONT));
         topCard.add(attendanceClassComboBox);
         topCard.add(createStyledLabel("Division:", NORMAL_FONT));
@@ -1366,16 +1370,20 @@ public class Main extends JFrame {
         }
 
         String subjectName = (String) subjectComboBox.getSelectedItem();
+        String sessionNumberStr = (String) sessionNumberComboBox.getSelectedItem();
         Date d = (Date) dateSpinner.getValue();
         if (subjectName == null) {
             JOptionPane.showMessageDialog(this, "Please add subjects first.",
                 "No Subjects", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
+        // Extract session number from "Session X" format
+        int sessionNumber = Integer.parseInt(sessionNumberStr.split(" ")[1]);
 
         String findSub = "SELECT subject_id FROM subjects WHERE subject_name=?";
-        String findSession = "SELECT session_id FROM sessions WHERE session_date=? AND subject_id=?";
-        String insertSession = "INSERT INTO sessions(session_date, subject_id) VALUES(?,?)";
+        String findSession = "SELECT session_id FROM sessions WHERE session_date=? AND subject_id=? AND session_number=?";
+        String insertSession = "INSERT INTO sessions(session_date, subject_id, session_number) VALUES(?,?,?)";
         // PostgreSQL upsert syntax (replace MySQL's ON DUPLICATE KEY UPDATE)
         String upsertAttendance = "INSERT INTO attendance(student_id, session_id, status) VALUES(?,?,?) " +
                                   "ON CONFLICT (student_id, session_id) DO UPDATE SET status = EXCLUDED.status";
@@ -1399,6 +1407,7 @@ public class Main extends JFrame {
             try (PreparedStatement ps = c.prepareStatement(findSession)) {
                 ps.setDate(1, sqlDate);
                 ps.setInt(2, subjectId);
+                ps.setInt(3, sessionNumber);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         sessionId = rs.getInt(1);
@@ -1406,6 +1415,7 @@ public class Main extends JFrame {
                         try (PreparedStatement ins = c.prepareStatement(insertSession, Statement.RETURN_GENERATED_KEYS)) {
                             ins.setDate(1, sqlDate);
                             ins.setInt(2, subjectId);
+                            ins.setInt(3, sessionNumber);
                             ins.executeUpdate();
                             try (ResultSet g = ins.getGeneratedKeys()) {
                                 g.next();
@@ -1430,7 +1440,7 @@ public class Main extends JFrame {
             }
             c.commit();
             JOptionPane.showMessageDialog(this, 
-                "Attendance saved successfully for " + new SimpleDateFormat("yyyy-MM-dd").format(d) + " (" + subjectName + ")",
+                "Attendance saved successfully for " + new SimpleDateFormat("yyyy-MM-dd").format(d) + " - " + sessionNumberStr + " (" + subjectName + ")",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (SQLException ex) {
             try {

@@ -59,8 +59,9 @@ CREATE TABLE sessions (
                           session_date DATE NOT NULL,
                           subject_id INTEGER NOT NULL REFERENCES subjects(subject_id) ON DELETE CASCADE,
                           teacher_id INTEGER REFERENCES teachers(teacher_id) ON DELETE SET NULL,
+                          session_number INTEGER NOT NULL CHECK (session_number >= 1 AND session_number <= 10),
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                          UNIQUE(session_date, subject_id)
+                          UNIQUE(session_date, subject_id, session_number)
 );
 
 -- Create attendance table
