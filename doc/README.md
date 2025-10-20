@@ -194,7 +194,13 @@ The system comes with pre-configured users for testing:
 - **Factory Pattern**: UI component creation through UIConstants
 - **Singleton**: DatabaseManager for connection management
 
-For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)
+### Documentation
+- **Architecture**: See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed architecture documentation
+- **Database & Integration**: See [DATABASE_AND_INTEGRATION_GUIDE.md](DATABASE_AND_INTEGRATION_GUIDE.md) for comprehensive guide on:
+  - Database connections and JDBC integration
+  - Frontend-backend integration (Java Swing with PostgreSQL)
+  - Panel-by-panel data flow explanations
+  - Complete step-by-step examples with diagrams
 
 ### Project Structure
 ```
@@ -205,12 +211,14 @@ For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md)
 │   ├── db/                  # Database connection management
 │   ├── ui/                  # User Interface (Main, UIConstants)
 │   └── utils/               # Utility classes (PasswordUtil, ValidationUtil)
+├── doc/                     # Documentation
+│   ├── ARCHITECTURE.md      # Architecture documentation
+│   └── DATABASE_AND_INTEGRATION_GUIDE.md  # Database & integration guide
 ├── schema.sql              # PostgreSQL database schema
 ├── db.properties.example   # Database configuration template
 ├── build.sh / build.bat    # Build scripts
 ├── run.sh / run.bat        # Run scripts
-├── README.md               # This file
-└── ARCHITECTURE.md         # Detailed architecture documentation
+└── README.md               # Project overview
 ```
 
 ### Database Schema
