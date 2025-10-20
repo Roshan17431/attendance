@@ -103,7 +103,7 @@ public class ReportGenerator {
 
         // Report display area with table
         DefaultTableModel reportModel = new DefaultTableModel(
-                new String[]{"Date", "Subject", "Student", "Roll No", "Status"}, 0) {
+                new String[]{"Date", "Subject", "Session", "Student", "Roll No", "Status"}, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         JTable reportTable = new JTable(reportModel);
@@ -208,7 +208,7 @@ public class ReportGenerator {
 
         try (Connection conn = DatabaseManager.getConnection()) {
             StringBuilder sql = new StringBuilder(
-                    "SELECT s.session_date, sb.subject_name, " +
+                    "SELECT s.session_date, sb.subject_name, s.session_number, " +
                             "st.first_name || ' ' || st.last_name as student_name, " +
                             "st.student_roll, a.status " +
                             "FROM attendance a " +
@@ -261,6 +261,7 @@ public class ReportGenerator {
                         model.addRow(new Object[]{
                                 sdf.format(rs.getDate("session_date")),
                                 rs.getString("subject_name"),
+                                "Session " + rs.getInt("session_number"),
                                 rs.getString("student_name"),
                                 rs.getString("student_roll"),
                                 statusStr
@@ -355,18 +356,19 @@ public class ReportGenerator {
                 writer.println();
 
                 // Column headers
-                writer.printf("%-12s %-20s %-25s %-12s %-10s%n",
-                        "Date", "Subject", "Student", "Roll No", "Status");
-                writer.println("───────────────────────────────────────────────────────");
+                writer.printf("%-12s %-20s %-12s %-25s %-12s %-10s%n",
+                        "Date", "Subject", "Session", "Student", "Roll No", "Status");
+                writer.println("────────────────────────────────────────────────────────────────────");
 
                 // Data rows
                 for (int i = 0; i < model.getRowCount(); i++) {
-                    writer.printf("%-12s %-20s %-25s %-12s %-10s%n",
+                    writer.printf("%-12s %-20s %-12s %-25s %-12s %-10s%n",
                             model.getValueAt(i, 0),
                             model.getValueAt(i, 1),
                             model.getValueAt(i, 2),
                             model.getValueAt(i, 3),
-                            model.getValueAt(i, 4));
+                            model.getValueAt(i, 4),
+                            model.getValueAt(i, 5));
                 }
 
                 writer.println("═══════════════════════════════════════════════════════");
